@@ -1,5 +1,5 @@
 library(readxl)
-ebp05 <- read_excel("~/Desktop/team8ebp05/ebp05.xlsx")
+ebp05 <- read_excel("~/Desktop/ggplot2/ebp05.xlsx")
 ebp05
 head(ebp05)
 
@@ -109,7 +109,7 @@ fit3<- aov(CREA~TEAM, data=ebp05)
 fit3
 summary(fit3)
 
-Tuk3<-TukeyHSD(fit3,conf.level =0.99)
+Tuk3<-TukeyHSD(fit3,conf.level = 0.99)
 
 par(las=1)
 par(mar=c(5,10,2,2))
@@ -184,7 +184,7 @@ fit5<- aov(TGL~TEAM, data=ebp05)
 fit5
 summary(fit5)
 
-Tuk5<-TukeyHSD(fit5,conf.level =0.99)
+Tuk5<-TukeyHSD(fit5,conf.level =0.99 )
 
 par(las=1)
 par(mar=c(5,10,2,2))
@@ -216,29 +216,23 @@ shapiro.test(co$AST)
 shapiro.test(t1$AST)
 shapiro.test(t2$AST)
 
-qplot(TEAM, AST, data=ebp05, geom="boxplot")
-fit6<- aov(AST~TEAM, data=ebp05)
-fit6
-summary(fit6)
+#Plot AST by group 
+library("ggpubr")
+ggboxplot(ebp05, x="TEAM", y= "AST", color = "TEAM", palette = c("#00AFBB", "#E7B800", "#FC4E07"), order = c("CONTROL","MG1000D14", "MG3000D14"), ylab="AST", xlab = "Teams")
 
-Tuk6<-TukeyHSD(fit6,conf.level =0.99)
+# Mean plots
+# Plot AST by TEAM
+# Add error bars: mean_se
+# (other values include: mean_sd, mean_ci, median_iqr, ....)
 
-par(las=1)
-par(mar=c(5,10,2,2))
-plot(Tuk6)
-for(i in 1:length(Tuk6$TEAM[,1])){text(x=Tuk6$TEAM[i,1],y=length(Tuk6$TEAM[,1])-i+1.3,labels=round(-log10(Tuk6$TEAM[i,4]),digits=3),cex=0.4)}
+ggline(ebp05, x = "TEAM", y = "AST", 
+       add = c("mean_se", "jitter"), 
+       order = c("CONTROL", "MG1000D14", "MG3000D14"),
+       ylab = "AST", xlab = "Teams")
 
-m_aggr<-aggregate(ebp05$AST, by=list(ebp05$TEAM), FUN=mean)
-str
-group_means<-data.frame(TEAM=m_aggr[,1], Wt=m_aggr[,2])
+#Kruskal Wallis test
 
-myplot<-ggplot(ebp05, aes(TEAM,AST), colour=Species)
-
-myplot +
-geom_jitter(aes(colour=TEAM)) +
-facet_grid(~TEAM)+labs(x="") +
-theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
-geom_hline(aes(yintercept = Wt, colour=TEAM), data=group_means)
+kruskal.test(AST ~ TEAM, data = ebp05)
 
 
 #ALT
@@ -420,7 +414,7 @@ m_aggr<-aggregate(ebp05$PLI, by=list(ebp05$TEAM), FUN=mean)
 str
 group_means<-data.frame(TEAM=m_aggr[,1], Wt=m_aggr[,2])
 
-myplot<-ggplot(ebp05, aes(TEAM,PLI), colour=Species)
+myplot<-ggplot(ebp05, aes(TEAM,PLI), colour=TEAM)
 
 myplot +
 geom_jitter(aes(colour=TEAM)) +
